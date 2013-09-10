@@ -1,0 +1,59 @@
+#!/bin/sh
+# @k88hudson
+
+BASE_URL=https://bugzilla.mozilla.org
+BASE_BRANCH="mozilla:master"
+GITHUB_NAME="k88hudson"
+EMAIL="kate@mozillafoundation.org"
+
+input=$1
+command=${input:0:1}
+
+#lookup a ticket
+if [ $command == "t" ]; then
+  ticket=${input:1:${#input}}
+  url="$BASE_URL/show_bug.cgi?id="$ticket
+  open $url
+elif [ $input == "open" ]; then
+  #Get branch name
+  branch_name=$(git symbolic-ref -q HEAD)
+  branch_name="${branch_name//[!0-9]}"
+  branch_name=${branch_name:-HEAD}
+  url="$BASE_URL/show_bug.cgi?id="$branch_name
+  open $url
+elif [ $input == "new" ]; then
+  url="$BASE_URL/enter_bug.cgi?product=Webmaker"
+  while [ "$1" != "" ]; do
+    case $1 in
+      -c | --component )      shift
+                              if [ $1 == "wm" ]; then
+                                text="Webmaker"
+                              elif [ $1 == "popcorn" ]; then
+                                text="Popcorn%20Maker"
+                              elif [ $1 == "thimble" ]; then
+                                text="Thimble"
+                              elif [ $1 == "makeapi" ]; then
+                                text="MakeAPI"
+                              elif [ $1 == "login" ]; then
+                                text="Login"
+                              elif [ $1 == "makevalet" ]; then
+                                text="Make%20Valet"
+                              else
+                                text=$(php -r "echo urlencode(\"$1\");")
+                              fi
+                              url="$url&component=$text"
+                              ;;
+      -me )                   url="$url&assigned_to=$EMAIL"
+                              ;;
+      -m | --message )        shift
+                              text=$(php -r "echo urlencode(\"$1\");")
+                              url="$url&short_desc=$text"
+                              ;;
+    esac
+    shift
+  done
+  open $url
+elif [ $input == "dashboard" ]; then
+  url="$BASE_URL/page.cgi?id=mydashboard.html"
+  open $url
+fi
