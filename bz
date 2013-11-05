@@ -36,7 +36,7 @@ elif [ $input == "new" ]; then
                                 text="MakeAPI"
                               elif [ $1 == "login" ]; then
                                 text="Login"
-                              elif [ $1 == "makevalet" ]; then
+                              elif [ $1 == "valet" ]; then
                                 text="Make%20Valet"
                               else
                                 text=$(php -r "echo urlencode(\"$1\");")
